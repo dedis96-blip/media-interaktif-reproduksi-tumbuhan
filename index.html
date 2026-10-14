@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lab Maya Tumbuh Kembang Tumbuhan</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Nunito+Sans:opsz,wght@6..12,500;6..12,700;6..12,800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#c9d8cf;--paper:#edf3ee;--card:#fbfdfb;--ink:#13281f;--muted:#51655a;--line:#cfdcd2;
+  --green:#1f7a52;--green2:#145a3b;--leaf:#dcefe2;--accent:#d6e65a;--accent-ink:#2c3a00;
+  --danger:#c8452f;--warn:#b7791f;--blue:#2f7fc1;--head:#12372b;--head-ink:#eef6f0;
+  --trk:#d3ddd6;--opt:#7fcf9c;--shadow:0 1px 0 rgba(0,0,0,.04),0 6px 20px rgba(18,55,43,.08);
+  --serif:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --sans:'Nunito Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#050a07;--paper:#0f1a14;--card:#16251d;--ink:#e6f1e9;--muted:#9bb2a3;--line:#294236;
+    --green:#4cc489;--green2:#2c8f62;--leaf:#1d3629;--accent:#d6e65a;--accent-ink:#2c3a00;
+    --danger:#ff7b62;--warn:#e8b04a;--blue:#6db4f0;--head:#0a2218;--head-ink:#e6f1e9;
+    --trk:#2a4034;--opt:#2f8a5b;--shadow:0 6px 20px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#050a07;--paper:#0f1a14;--card:#16251d;--ink:#e6f1e9;--muted:#9bb2a3;--line:#294236;
+  --green:#4cc489;--green2:#2c8f62;--leaf:#1d3629;--accent:#d6e65a;--accent-ink:#2c3a00;
+  --danger:#ff7b62;--warn:#e8b04a;--blue:#6db4f0;--head:#0a2218;--head-ink:#e6f1e9;
+  --trk:#2a4034;--opt:#2f8a5b;--shadow:0 6px 20px rgba(0,0,0,.35);
+}
+html,body{height:100%;margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font:500 15px/1.45 var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none}
+textarea,input[type=text]{user-select:text;-webkit-user-select:text}
+button{font-family:inherit}
+#fit{position:relative;width:100%;height:100%;overflow:hidden}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:center center;background:var(--paper);overflow:hidden;box-shadow:0 10px 50px rgba(0,0,0,.28)}
+
+/* header */
+#top{position:absolute;left:0;right:0;top:0;height:60px;background:var(--head);color:var(--head-ink);display:flex;align-items:center;gap:14px;padding:0 16px}
+.brand{display:flex;gap:10px;align-items:center;width:310px;flex:none}
+.brand svg{flex:none}
+.brand b{font:800 17px/1.1 var(--serif);display:block;letter-spacing:-.2px;white-space:nowrap}
+.brand small{opacity:.78;font-size:12px}
+#tabs{display:flex;gap:6px;flex:1;justify-content:center}
+#tabs button{background:transparent;border:0;color:var(--head-ink);font:800 15px var(--sans);padding:10px 16px;border-radius:12px;cursor:pointer;opacity:.82;transition:background .15s,opacity .15s}
+#tabs button:hover{opacity:1;background:rgba(255,255,255,.1)}
+#tabs button.on{background:var(--accent);color:var(--accent-ink);opacity:1}
+.tools{display:flex;gap:8px;width:230px;justify-content:flex-end;flex:none}
+.tools button{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);color:var(--head-ink);font:700 13px var(--sans);padding:7px 12px;border-radius:10px;cursor:pointer}
+.tools button:hover{background:rgba(255,255,255,.22)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+main{position:absolute;left:0;right:0;top:60px;bottom:0}
+.pane{position:absolute;inset:0;padding:12px;display:none}
+.pane.on{display:block}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px}
+.btn{font:800 14px var(--sans);padding:8px 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:transform .12s,background .12s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);background:var(--leaf)}
+.btn:active{transform:translateY(1px)}
+.btn.pri{background:var(--green);border-color:var(--green2);color:#fff}
+.btn.pri:hover{background:var(--green2)}
+.btn.dng{border-color:var(--danger);color:var(--danger)}
+.btn.sm{padding:5px 10px;font-size:13px}
+h2,h3,h4{font-family:var(--serif);margin:0;letter-spacing:-.2px}
+
+/* TEORI */
+.teori{display:grid;grid-template-columns:260px 1fr;gap:12px;height:100%}
+#tMenu{display:flex;flex-direction:column;gap:6px;padding:10px}
+#tMenu button{display:flex;align-items:center;gap:10px;text-align:left;background:transparent;border:1.5px solid transparent;border-radius:10px;padding:0 10px;height:50px;font:800 14.5px var(--sans);color:var(--ink);cursor:pointer}
+#tMenu button span{font-size:20px;width:26px;text-align:center}
+#tMenu button:hover{background:var(--leaf)}
+#tMenu button.on{background:var(--green);color:#fff}
+#tBody{padding:20px 24px;overflow:hidden;position:relative}
+.th{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.th h2{font-size:28px;font-weight:800}
+.tic{font-size:30px}
+.lead{font-size:16px;margin:0 0 12px;line-height:1.5}
+.pts{margin:0;padding:0;list-style:none;display:grid;gap:9px}
+.pts li{position:relative;padding-left:22px;font-size:15px;line-height:1.45}
+.pts li:before{content:"";position:absolute;left:3px;top:8px;width:9px;height:9px;border-radius:50%;background:var(--green)}
+.cols{display:flex;gap:22px}
+.cols .tx{flex:1}
+.curvebox{width:380px;flex:none;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:8px 8px 4px}
+.curvebox small{display:block;text-align:center;color:var(--muted);font-size:12.5px;padding:2px 6px 4px}
+.simbox{position:absolute;left:24px;right:24px;bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--leaf);border:1.5px dashed var(--green);border-radius:12px;padding:10px 14px;font-weight:700}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.mini{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
+.mini h4{font-size:16px;margin-bottom:5px}
+.mini p{margin:0;font-size:14px;line-height:1.42}
+.mini .k{display:block;font-size:13px;color:var(--muted);margin-top:6px;line-height:1.38}
+.mini .k b{color:var(--ink)}
+.mini.hl{background:var(--leaf);border-color:var(--green)}
+.chips2{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chips2 i{font-style:normal;font-weight:800;font-size:13px;background:var(--card);border:1.5px solid var(--line);border-radius:99px;padding:3px 11px}
+.formula{display:inline-block;background:var(--accent);color:var(--accent-ink);font:800 16px var(--serif);padding:4px 12px;border-radius:8px;margin:2px 0 10px}
+
+/* PROSEDUR */
+.proc{display:grid;grid-template-rows:auto 1fr;gap:12px;height:100%}
+#pSteps{display:flex;gap:8px;padding:10px}
+#pSteps button{flex:1;display:flex;align-items:center;gap:10px;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;font:800 13.5px/1.2 var(--sans);color:var(--ink);cursor:pointer;text-align:left}
+#pSteps button b{flex:none;width:30px;height:30px;border-radius:50%;background:var(--card);border:2px solid var(--green);display:grid;place-items:center;font:800 15px var(--serif)}
+#pSteps button.on{background:var(--green);color:#fff;border-color:var(--green2)}
+#pSteps button.on b{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#pSteps button.done b{background:var(--green);color:#fff}
+.pbody{display:grid;grid-template-columns:1.25fr 1fr;gap:12px;min-height:0}
+.pbody .card{padding:20px 24px;position:relative}
+.pbody h3{font-size:24px;margin-bottom:10px}
+.pnav{position:absolute;left:24px;right:24px;bottom:16px;display:flex;justify-content:space-between;gap:8px}
+.vt{width:100%;border-collapse:collapse;font-size:14px}
+.vt th,.vt td{border:1.5px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+.vt th{background:var(--leaf);font-family:var(--serif);font-size:14px}
+
+/* SIMULASI */
+.sim{display:grid;grid-template-columns:700px minmax(0,1fr);gap:12px;height:100%}
+.simL{display:grid;grid-template-rows:350px minmax(0,1fr);gap:12px;min-height:0;min-width:0}
+.scene{position:relative;border-radius:14px;overflow:hidden;border:1.5px solid var(--line);box-shadow:var(--shadow)}
+.scene canvas{display:block;width:700px;height:350px}
+.hud{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center}
+.hud span{background:rgba(255,255,255,.88);color:#17301f;border-radius:99px;padding:3px 12px;font-weight:800;font-size:13.5px}
+.hud .stg{background:var(--accent);color:var(--accent-ink)}
+#diag{position:absolute;left:10px;top:122px;width:200px;display:flex;flex-direction:column;gap:5px}
+#diag div{font-size:12px;line-height:1.25;font-weight:700;border-radius:8px;padding:4px 8px;background:rgba(255,255,255,.9);color:#1e2f26;border-left:4px solid var(--green)}
+#diag div.bad{border-left-color:#d4452b}
+#diag div.warn{border-left-color:#d19a1c}
+.simB{display:grid;grid-template-columns:420px minmax(0,1fr);gap:12px;min-height:0;min-width:0}
+.cc{padding:8px 10px;display:flex;flex-direction:column}
+.cch{display:flex;align-items:center;justify-content:space-between;height:26px;margin-bottom:2px}
+.cch b{font:800 14px var(--serif)}
+.seg{display:flex;border:1.5px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--card);color:var(--ink);font:800 12.5px var(--sans);padding:3px 10px;cursor:pointer}
+.seg button.on{background:var(--green);color:#fff}
+#chart{width:400px;height:210px;display:block}
+.lg{display:flex;gap:12px;font-size:12px;color:var(--muted);font-weight:700;height:18px;align-items:center;padding-left:6px}
+.lg i{display:inline-block;width:16px;height:0;border-top:3px solid;margin-right:4px;vertical-align:middle}
+.stc{padding:10px 12px}
+.stg6{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stat{background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:4px 9px}
+.stat small{display:block;color:var(--muted);font-size:12px;font-weight:700;line-height:1.1}
+.stat b{font:800 19px/1.15 var(--serif)}
+.stat b em{font:700 12px var(--sans);font-style:normal;color:var(--muted);margin-left:3px}
+.bar{height:6px;border-radius:4px;background:var(--trk);margin-top:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--green);width:100%;transition:width .2s,background .2s}
+.track{display:flex;gap:4px;margin-top:8px}
+.track div{flex:1;min-width:0;overflow:hidden;text-align:center;font-size:10.5px;font-weight:800;padding:4px 1px;border-radius:8px;background:var(--paper);border:1.5px solid var(--line);color:var(--muted);line-height:1.15}
+.track div.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.track div.pass{background:var(--leaf);color:var(--green2);border-color:var(--green)}
+.simR{display:flex;flex-direction:column;gap:8px;min-height:0;padding:12px 14px}
+.rh{display:flex;justify-content:space-between;align-items:center;font:800 14px var(--serif)}
+.rh label{font:700 12.5px var(--sans);color:var(--muted);display:flex;gap:6px;align-items:center;cursor:pointer}
+.rh input{accent-color:var(--green)}
+#presets{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+#presets button{font:800 12px var(--sans);padding:6px 0;white-space:nowrap;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+#presets button:hover{background:var(--leaf);border-color:var(--green)}
+.sub{display:flex;gap:6px}
+.sub button{flex:1;font:800 14px var(--sans);padding:7px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.sub button.on{background:var(--green);color:#fff;border-color:var(--green2)}
+.ctlarea{flex:1;min-height:0}
+.ctls{display:flex;flex-direction:column;gap:7px}
+.ctl label{display:flex;justify-content:space-between;font-weight:800;font-size:14px;line-height:1.2}
+.ctl label b{color:var(--green);font-variant-numeric:tabular-nums}
+.ctl small{display:block;color:var(--muted);font-size:12px;line-height:1.2;margin-top:3px}
+.hid{display:none!important}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:6px;background:var(--trk);outline-offset:4px;margin:7px 0 0;display:block}
+body.hint input[type=range]{background:linear-gradient(90deg,var(--trk) 0,var(--trk) var(--lo),var(--opt) var(--lo),var(--opt) var(--hi),var(--trk) var(--hi),var(--trk) 100%)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--green);border:3px solid var(--card);box-shadow:0 1px 5px rgba(0,0,0,.4);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--green);border:3px solid var(--card);cursor:pointer}
+.gbtn{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:2px 0 4px}
+.gbtn button{font:800 13px/1.2 var(--sans);padding:7px 4px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.gbtn button small{display:block;font-weight:700;color:var(--muted);font-size:11.5px}
+.gbtn button.on{background:var(--green);color:#fff;border-color:var(--green2)}
+.gbtn button.on small{color:#d9f0e2}
+.act{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.act .btn{padding:9px 4px;font-size:13.5px}
+
+/* LKPD */
+.lk{display:flex;flex-direction:column;gap:12px;height:100%}
+.lkt{display:flex;align-items:center;gap:10px;padding:8px 12px;height:58px}
+.lkt input[type=text]{font:700 14px var(--sans);border:1.5px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--paper);color:var(--ink);width:190px}
+.lkt .sub{margin-left:8px;width:430px}
+.lkt .sp{flex:1}
+.lkb{flex:1;min-height:0;position:relative}
+.lkp{position:absolute;inset:0;display:none}
+.lkp.on{display:block}
+.lkp.grid{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:12px}
+.lkp.grid.on{display:grid}
+.tw{overflow:hidden}
+.dt{width:100%;border-collapse:collapse;font-size:13.5px}
+.dt th{background:var(--leaf);font:800 12.5px var(--serif);padding:6px 5px;border:1.5px solid var(--line);text-align:center}
+.dt td{padding:5px 5px;border:1.5px solid var(--line);text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+.dt tr:nth-child(even) td{background:var(--paper)}
+.dt .empty{padding:48px;color:var(--muted);font-weight:700}
+.dt td.pos{color:var(--green2)} .dt td.neg{color:var(--danger)}
+.qa{display:flex;flex-direction:column;padding:12px 14px;min-height:0}
+.qa h4{font-size:15px;line-height:1.3;margin-bottom:6px}
+.qa textarea{flex:1;min-height:0;resize:none;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font:600 14px/1.4 var(--sans);padding:8px 10px}
+.qa .hint{font-size:12.5px;color:var(--green2);background:var(--leaf);border-radius:8px;padding:5px 9px;margin-top:6px;display:none;line-height:1.3}
+.qa .hint.on{display:block}
+.qa .bt{margin-top:6px;display:flex;justify-content:flex-end}
+.quiz{padding:24px 40px}
+.qhead{color:var(--muted);font-weight:800;margin-bottom:6px}
+.quiz h3{font-size:24px;line-height:1.3;margin-bottom:16px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{text-align:left;font:700 15.5px/1.35 var(--sans);padding:12px 16px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.opt:hover{border-color:var(--green)}
+.opt.ok{background:var(--leaf);border-color:var(--green);color:var(--green2)}
+.opt.no{background:rgba(200,69,47,.12);border-color:var(--danger)}
+.fb{margin-top:14px;padding:12px 16px;border-radius:12px;background:var(--paper);border:1.5px solid var(--line);font-size:15px;display:flex;justify-content:space-between;gap:14px;align-items:center}
+.score{font:800 64px var(--serif);color:var(--green)}
+
+/* PENGEMBANG */
+.dev{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:12px;height:100%}
+.dev .card{padding:18px 20px;overflow:hidden}
+.dev h3{font-size:20px;margin-bottom:8px}
+.dev p{margin:0 0 8px;font-size:14px}
+.dev ul{margin:0 0 10px;padding-left:18px;font-size:14px;display:grid;gap:4px}
+.dev .f{display:grid;gap:3px;margin-bottom:8px}
+.dev .f span{font-weight:800;font-size:13px;color:var(--muted)}
+.dev .f input{font:700 14px var(--sans);border:1.5px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--paper);color:var(--ink)}
+.badge{display:inline-block;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:12.5px;border-radius:99px;padding:2px 10px;margin-right:4px}
+.note{background:var(--leaf);border-left:5px solid var(--green);border-radius:8px;padding:8px 12px;font-size:13.5px;margin-top:6px}
+
+#toast{position:absolute;left:50%;bottom:20px;transform:translate(-50%,20px);background:var(--head);color:var(--head-ink);padding:10px 20px;border-radius:12px;font-weight:800;font-size:14.5px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:10;max-width:700px;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="fit"><div id="stage">
+  <header id="top">
+    <div class="brand">
+      <svg width="38" height="38" viewBox="0 0 38 38" aria-hidden="true"><rect width="38" height="38" rx="10" fill="#d6e65a"/><path d="M19 31V17" stroke="#12372b" stroke-width="3" stroke-linecap="round"/><path d="M19 20c-1-6-5-8-10-8 0 6 3 9 10 8z" fill="#12372b"/><path d="M19 16c1-5 5-7 10-7 0 6-3 8-10 7z" fill="#1f7a52"/></svg>
+      <div><b>Lab Maya Tumbuh Kembang</b><small>Biologi Fase F · Kelas XII</small></div>
+    </div>
+    <nav id="tabs" aria-label="Menu utama">
+      <button data-tab="teori" class="on">📘 Teori</button>
+      <button data-tab="prosedur">🧭 Prosedur</button>
+      <button data-tab="sim">🔬 Simulasi</button>
+      <button data-tab="lkpd">📝 LKPD</button>
+      <button data-tab="dev">👩‍💻 Pengembang</button>
+    </nav>
+    <div class="tools">
+      <button id="btnSound" title="Hidupkan atau matikan efek suara">🔊 Suara</button>
+      <button id="btnFull" title="Layar penuh">⛶ Layar Penuh</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- TEORI -->
+    <section class="pane on" id="pane-teori">
+      <div class="teori">
+        <aside class="card" id="tMenu"></aside>
+        <article class="card" id="tBody"></article>
+      </div>
+    </section>
+
+    <!-- PROSEDUR -->
+    <section class="pane" id="pane-prosedur">
+      <div class="proc">
+        <div class="card" id="pSteps"></div>
+        <div class="pbody">
+          <div class="card" id="pMain"></div>
+          <div class="card" id="pSide"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIMULASI -->
+    <section class="pane" id="pane-sim">
+      <div class="sim">
+        <div class="simL">
+          <div class="scene">
+            <canvas id="scene" width="1400" height="700"></canvas>
+            <div class="hud"><span>Hari <b id="hudDay">0</b> / 30</span><span class="stg" id="hudStage">🌰 Kecambah</span></div>
+            <div id="diag"></div>
+          </div>
+          <div class="simB">
+            <div class="card cc">
+              <div class="cch"><b>Grafik pertumbuhan</b>
+                <div class="seg"><button id="mH" class="on">Tinggi (cm)</button><button id="mB">Biomassa (g)</button></div></div>
+              <canvas id="chart" width="800" height="420"></canvas>
+              <div class="lg"><span><i style="border-color:var(--green)"></i>Percobaan ini</span><span><i style="border-color:var(--blue);border-top-style:dashed"></i>Sebelumnya</span><span><i style="border-color:var(--muted);border-top-style:dashed"></i>Kontrol</span></div>
+            </div>
+            <div class="card stc">
+              <div class="stg6">
+                <div class="stat"><small>Tinggi batang</small><b id="stH">0</b><em></em></div>
+                <div class="stat"><small>Biomassa</small><b id="stB">0</b></div>
+                <div class="stat"><small>Jumlah daun</small><b id="stL">0</b></div>
+                <div class="stat"><small>Indeks akar</small><b id="stR">0</b></div>
+                <div class="stat"><small>Klorofil</small><b id="stC">0</b><div class="bar"><i id="barC"></i></div></div>
+                <div class="stat"><small>Kesehatan</small><b id="stK">0</b><div class="bar"><i id="barK"></i></div></div>
+              </div>
+              <div class="track" id="track"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card simR">
+          <div class="rh"><span>Preset percobaan</span><label><input type="checkbox" id="hintTog"> Petunjuk zona optimum</label></div>
+          <div id="presets"></div>
+          <div class="sub"><button id="tabExt" class="on">🌤️ Faktor Eksternal</button><button id="tabInt">🧬 Faktor Internal</button></div>
+          <div class="ctlarea">
+            <div class="ctls" id="ctlExt"></div>
+            <div class="ctls hid" id="ctlInt">
+              <div class="ctl"><label><span>🧬 Gen (varietas)</span></label>
+                <div class="gbtn" id="gene">
+                  <button data-g="0">Kerdil (tt)<small>potensi ±28 cm</small></button>
+                  <button data-g="1" class="on">Normal<small>potensi ±60 cm</small></button>
+                  <button data-g="2">Unggul<small>potensi ±80 cm</small></button>
+                </div></div>
+              <div id="ctlHor" class="ctls"></div>
+            </div>
+          </div>
+          <div class="act">
+            <button class="btn pri" id="bPlay">▶ Mulai</button>
+            <button class="btn" id="bSpeed">⏩ ×1</button>
+            <button class="btn" id="bReplant">🌱 Tanam ulang</button>
+            <button class="btn" id="bSave">💾 Simpan data</button>
+            <button class="btn" id="bLk">📝 Buka LKPD</button>
+            <button class="btn dng" id="bReset">↺ Reset semua</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LKPD -->
+    <section class="pane" id="pane-lkpd">
+      <div class="lk">
+        <div class="card lkt">
+          <b style="font:800 15px var(--serif)">Identitas</b>
+          <input type="text" id="lkName" placeholder="Nama siswa" aria-label="Nama siswa">
+          <input type="text" id="lkClass" placeholder="Kelas" style="width:100px" aria-label="Kelas">
+          <div class="sub"><button data-lk="data" class="on">📊 Data Pengamatan</button><button data-lk="ana">🧠 Analisis</button><button data-lk="quiz">🎯 Kuis</button></div>
+          <span class="sp"></span>
+          <button class="btn dng sm" id="lkClear">Hapus isian LKPD</button>
+        </div>
+        <div class="lkb">
+          <div class="lkp on card tw" id="lk-data">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <div><b style="font:800 17px var(--serif)">Tabel hasil percobaan</b><div style="font-size:13px;color:var(--muted)">Data terisi otomatis saat kamu menekan 💾 Simpan data di Simulasi. Ubah satu faktor saja tiap percobaan, lalu bandingkan dengan baris pertama (kontrol).</div></div>
+              <div style="display:flex;gap:8px"><button class="btn sm" id="lkGoSim">🔬 Ke Simulasi</button><button class="btn sm dng" id="lkRowsClear">Kosongkan tabel</button></div>
+            </div>
+            <table class="dt"><thead><tr>
+              <th style="width:30px">No</th><th>Hari</th><th>Air<br>mL/hr</th><th>Cahaya<br>%</th><th>Suhu<br>°C</th><th>Lembab<br>%</th><th>N-P-K<br>%</th><th>Gen</th><th>Hormon<br>tambahan</th><th>Tinggi<br>cm</th><th>Biomassa<br>g</th><th>Daun</th><th>Tahap</th><th>Δ tinggi<br>vs No 1</th><th style="width:30px"></th>
+            </tr></thead><tbody id="lkRows"></tbody></table>
+          </div>
+          <div class="lkp grid" id="lk-ana"></div>
+          <div class="lkp card quiz" id="lk-quiz"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PENGEMBANG -->
+    <section class="pane" id="pane-dev">
+      <div class="dev">
+        <div class="card">
+          <h3>Tentang media</h3>
+          <p><span class="badge">Fase F</span><span class="badge">Biologi</span><span class="badge">Kelas XII</span></p>
+          <p>Lab maya ini membantu siswa mengamati bagaimana <b>faktor internal</b> (gen dan hormon) dan <b>faktor eksternal</b> (air, cahaya, suhu, kelembaban, nutrisi mineral) memengaruhi pertumbuhan dan perkembangan tumbuhan, tanpa perlu menunggu berminggu-minggu.</p>
+          <h3 style="margin-top:12px">Tujuan pembelajaran</h3>
+          <ul>
+            <li>Membedakan pertumbuhan (kuantitatif) dan perkembangan (kualitatif).</li>
+            <li>Menjelaskan peran gen dan lima kelompok hormon tumbuhan.</li>
+            <li>Merancang percobaan dengan variabel manipulasi, respons, dan kontrol.</li>
+            <li>Menganalisis data untuk menyimpulkan pengaruh tiap faktor eksternal.</li>
+          </ul>
+          <div class="note">Selaras dengan Capaian Pembelajaran Biologi Fase F (Kurikulum Merdeka) pada topik pertumbuhan dan perkembangan.</div>
+        </div>
+        <div class="card">
+          <h3>Cara kerja model</h3>
+          <ul>
+            <li>Setiap faktor punya kurva respons: kurang, optimum, berlebih.</li>
+            <li>Tinggi dan biomassa dihitung dengan pertumbuhan logistik (S) yang dibatasi faktor paling kurang (hukum minimum Liebig).</li>
+            <li>Suhu menentukan kecepatan perkembangan lewat akumulasi unit panas, sehingga tahap berbunga dan berbuah bisa tertunda.</li>
+            <li>Hormon mengubah laju dan bentuk: GA memanjangkan batang, auksin memengaruhi akar dan dominansi apikal, sitokinin menambah tunas lateral, etilen menggugurkan daun, ABA menahan pertumbuhan.</li>
+            <li>Hari simulasi berjalan 30 hari. Kecepatan bisa ×1, ×2, atau ×4.</li>
+          </ul>
+          <div class="note"><b>Catatan:</b> ini model kualitatif yang disederhanakan untuk pembelajaran, bukan data hasil pengukuran. Angka tidak menggantikan praktikum nyata.</div>
+        </div>
+        <div class="card">
+          <h3>Identitas pengembang</h3>
+          <div class="f"><span>Nama pengembang</span><input type="text" id="dvName" placeholder="Isi nama Anda"></div>
+          <div class="f"><span>Sekolah / institusi</span><input type="text" id="dvOrg" placeholder="Isi nama sekolah"></div>
+          <div class="f"><span>Tahun pembuatan</span><input type="text" id="dvYear" placeholder="2026"></div>
+          <h3 style="margin-top:10px">Teknologi &amp; referensi</h3>
+          <ul>
+            <li>HTML, CSS, JavaScript, Canvas, Web Audio API.</li>
+            <li>Dibuat dengan bantuan Claude (Anthropic).</li>
+            <li>Referensi konsep: buku Biologi Kelas XII (Kemendikbudristek); Campbell Biology; Taiz &amp; Zeiger, <i>Plant Physiology</i>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="toast"></div>
+</div></div>
+
+<script>
+/* ================== UTIL ================== */
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const approach=(c,t,r,dt)=>c+(t-c)*(1-Math.exp(-r*dt));
+const rnd=i=>{const x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x)};
+function hsl2rgb(h,s,l){h/=360;s/=100;l/=100;const a=s*Math.min(l,1-l);const f=n=>{const k=(n+h*12)%12;return l-a*Math.max(-1,Math.min(k-3,9-k,1))};return[f(0)*255,f(8)*255,f(4)*255]}
+const mixc=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
+const rgb=a=>`rgb(${a[0]|0},${a[1]|0},${a[2]|0})`;
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2600)}
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* ================== SUARA ================== */
+let AC=null,soundOn=true;
+function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC}
+function tone(f,d=0.1,type='sine',vol=0.07,delay=0,slide=0){
+  if(!soundOn)return;const a=ac();if(!a)return;
+  try{const t=a.currentTime+delay,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,f*slide),t+d);
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+  o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+0.03)}catch(e){}
+}
+const SFX={
+  click:()=>tone(660,.07,'triangle',.07),
+  tab:()=>{tone(520,.06,'sine',.07);tone(780,.09,'sine',.07,.06)},
+  start:()=>[440,554,659,880].forEach((f,i)=>tone(f,.14,'triangle',.07,i*.07)),
+  pause:()=>{tone(500,.09,'triangle',.07);tone(380,.14,'triangle',.07,.08)},
+  reset:()=>{tone(700,.14,'sawtooth',.035,0,.5);tone(350,.2,'sawtooth',.035,.1,.6)},
+  water:v=>tone(380+v*6,.13,'sine',.06,0,1.7),
+  light:v=>tone(900+v*8,.12,'sine',.045,0,1.2),
+  temp:v=>tone(160+v*10,.1,'triangle',.06),
+  mist:v=>tone(500+v*3,.08,'sine',.04),
+  mineral:v=>tone(700+v*5,.05,'square',.03),
+  hormone:v=>{tone(420+v*4,.07,'triangle',.05);tone(630+v*4,.07,'triangle',.04,.05)},
+  stage:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.18,'sine',.08,i*.08)),
+  warn:()=>{tone(200,.28,'square',.04,0,.7);tone(160,.3,'square',.04,.2,.7)},
+  save:()=>{tone(988,.08,'square',.04);tone(1318,.16,'square',.04,.08)},
+  ok:()=>{tone(660,.1,'sine',.08);tone(880,.1,'sine',.08,.1);tone(1320,.22,'sine',.08,.2)},
+  bad:()=>tone(220,.28,'sawtooth',.05,0,.6),
+  done:()=>[523,659,784,659,784,1047].forEach((f,i)=>tone(f,.16,'triangle',.08,i*.1))
+};
+function sfx(n,v){try{SFX[n](v)}catch(e){}}
+
+/* ================== MODEL ================== */
+const DEF={water:55,light:75,temp:28,hum:70,N:65,P:65,K:65,gene:1,ga:0,aux:0,cyt:0,eth:0,aba:0};
+function interp(x,pts){if(x<=pts[0][0])return pts[0][1];for(let i=1;i<pts.length;i++){if(x<=pts[i][0]){const[a,b]=pts[i-1],[c,d]=pts[i];return b+(d-b)*(x-a)/(c-a)}}return pts[pts.length-1][1]}
+const F={
+  water:x=>interp(x,[[0,.02],[10,.1],[25,.55],[40,1],[70,1],[85,.7],[100,.45],[140,.25]]),
+  light:x=>interp(x,[[0,.03],[20,.4],[40,.8],[60,1],[90,1],[100,.85]]),
+  temp:x=>interp(x,[[10,.05],[15,.3],[20,.7],[25,1],[30,1],[35,.6],[40,.2],[45,0]]),
+  hum:x=>interp(x,[[20,.45],[40,.8],[60,1],[80,1],[100,.8]]),
+  min:x=>interp(x,[[0,.1],[20,.45],[40,.85],[50,1],[80,1],[100,.65]])
+};
+const HMAX=[28,60,80],BMAX=[16,40,52],GAH=[1.2,.6,.3],GAM=[1,.25,.12];
+function calc(p){
+  const demand=clamp((1+(p.temp-27)*.025+(60-p.hum)*.008)*(1-.4*p.aba/100)*(.75+.25*p.light/100),.5,2);
+  const weff=p.water/demand;
+  const fW=F.water(weff),fL=F.light(p.light),fT=F.temp(p.temp),fH=F.hum(p.hum);
+  const fN=F.min(p.N),fP=F.min(p.P),fK=F.min(p.K);
+  const fMin=.5*Math.min(fN,fP,fK)+.5*Math.cbrt(fN*fP*fK);
+  return{demand,weff,fW,fL,fT,fH,fN,fP,fK,fMin,ga:p.ga/100,au:p.aux/100,cy:p.cyt/100,et:p.eth/100,ab:p.aba/100};
+}
+function initState(){return{day:0,H:1.5,B:.3,L:2,ls:.3,chl:88,R:.1,br:0,wilt:0,rot:0,health:100,dd:0,shed:0,dead:false,stage:0,defN:0,defP:0,defK:0,hist:[{d:0,H:1.5,B:.3}],ns:.5}}
+function step(s,p,dt){
+  const c=calc(p),g=p.gene;
+  const x=clamp((45-p.light)/45,0,1);
+  const qual=Math.cbrt(Math.max(0,c.fMin*c.fW*c.fT));
+  const rotT=clamp((p.water-80)/20,0,1)*.8+clamp((p.hum-92)/8,0,1)*.2;
+  s.rot=approach(s.rot,rotT,.3,dt);
+  const lim=Math.min(c.fW,c.fT,c.fL,Math.min(c.fN,c.fP,c.fK),Math.min(1,c.fH+.15));
+  const hs=1-.4*Math.max(0,c.et-.5)-.3*Math.max(0,c.au-.75)-.2*Math.max(0,c.ga-.85);
+  const hT=100*Math.pow(Math.max(.0005,lim),.6)*(1-.7*s.rot)*hs;
+  if(!s.dead){s.health=approach(s.health,hT,.25,dt);if(s.health<10)s.dead=true}
+  const gm=s.dead?0:clamp(s.health/50,.15,1);
+  /* tinggi */
+  const gaF=1+GAH[g]*c.ga;
+  const auF=1+.3*Math.exp(-Math.pow((c.au-.35)/.25,2))-.5*Math.max(0,c.au-.6);
+  const etio=1+3*x*x;
+  const rH=.25*Math.pow(c.fT*c.fW,.6)*Math.pow(c.fMin,.6)*Math.sqrt(c.fH)*(.45+.55*c.fL)*etio*gaF*auF*(1-.15*c.cy)*(1-.55*c.et)*(1-.75*c.ab)*gm;
+  const lf=(.45+.55*Math.sqrt(c.fL))*(1+.5*x)*(.6+.4*c.fL);
+  const Hm=HMAX[g]*(1+GAM[g]*c.ga)*(.45+.55*qual)*lf*(1-.35*c.et)*(1-.4*c.ab);
+  s.H+=Math.max(0,rH*s.H*(1-s.H/Math.max(Hm,.5)))*dt;
+  /* biomassa */
+  const P=clamp(c.fL*c.fW*c.fT*Math.sqrt(c.fH)*c.fMin*(1-.4*c.et)*(1-.3*c.ab),0,1);
+  const Bm=BMAX[g]*(.3+.7*Math.sqrt(P));
+  if(!s.dead){s.B=Math.max(.05,s.B+s.B*(.30*P*gm*(1-s.B/Bm)-.035)*dt)}
+  /* organ & penampilan */
+  s.defN=approach(s.defN,clamp((1-c.fN)/.8,0,1),.3,dt);
+  s.defP=approach(s.defP,clamp((1-c.fP)/.8,0,1),.3,dt);
+  s.defK=approach(s.defK,clamp((1-c.fK)/.8,0,1),.3,dt);
+  const chlT=clamp(100*Math.pow(c.fN,.7)*(.1+.9*Math.sqrt(c.fL))*(1-.6*c.et*(1-.5*c.cy))*(.6+.4*Math.min(1,s.health/60)),0,100);
+  s.chl=approach(s.chl,s.dead?chlT*.5:chlT,.25,dt);
+  if(!s.dead){
+    const Lt=clamp((3+14*Math.sqrt(Math.min(s.H,60)/60))*(.45+.55*Math.min(1,P*1.3))*(1+.45*c.cy)*(1-1.2*Math.max(0,c.et-.15)),0,20);
+    if(Lt>s.L)s.L+=Math.min(Lt-s.L,1.2*dt);else{const d=Math.min(s.L-Lt,.6*dt);s.L-=d;s.shed+=d}
+    const lst=clamp(.3+.7*Math.sqrt(s.B/(BMAX[g]*.8)),.25,1)*(.55+.45*Math.min(c.fMin,c.fW))*(.5+.5*Math.sqrt(c.fL));
+    s.ls=approach(s.ls,lst,.2,dt);
+    const rootAux=1+.5*Math.exp(-Math.pow((c.au-.3)/.2,2))-1.2*Math.max(0,c.au-.55);
+    const mild=(c.weff>12&&c.weff<35)?.15:0;
+    const Rt=clamp(((.1+.9*Math.sqrt(s.B/32))*Math.max(.15,rootAux)*(.5+.5*c.fP)*(.7+.3*Math.min(1,c.fL+.2))+mild)*(1-.65*s.rot),0,1.1);
+    s.R=approach(s.R,Rt,.35,dt);
+    const brT=Math.min(6,Math.max(0,2+4.5*c.cy-3*c.au*(1-.7*c.cy)))*clamp((s.H-8)/20,0,1)*(.4+.6*Math.min(1,P*1.2));
+    s.br=approach(s.br,brT,.3,dt);
+    s.dd+=Math.max(0,p.temp-10)*(.4+.6*s.health/100)*(1-.5*c.ab)*dt;
+  }
+  const wT=s.dead?1:clamp(Math.max(c.weff<50?1.2*(1-Math.min(1,c.fW/.8)):0,0)+clamp((p.temp-35)/10,0,1)*.5+s.rot*.6,0,1);
+  s.wilt=approach(s.wilt,wT,.8,dt);
+  const flowOK=c.fL>=.5&&c.fP>=.6&&s.health>35&&!s.dead;
+  s.stage=s.dd<60?0:s.dd<300?1:flowOK?(s.dd<400?2:3):1;
+}
+function sample(s){while(s.ns<=s.day+1e-9){s.hist.push({d:s.ns,H:s.H,B:s.B});s.ns+=.5}}
+function runSim(pp,days){const st=initState();for(let i=0;i<days*10;i++){step(st,pp,.1);st.day+=.1;sample(st)}return st.hist}
+const CTRL=runSim(DEF,30);
+
+/* ================== STATE ================== */
+let p={...DEF},s=initState(),running=false,speed=1,prev=null,metric='H',rows=[],lastStage=0,warned=false,chartDirty=true;
+const STG=['🌰 Kecambah','🌿 Vegetatif','🌸 Berbunga','🍅 Berbuah'];
+const GN=['Kerdil','Normal','Unggul'];
+
+/* ================== KONTROL UI ================== */
+const EXT=[
+ {k:'water',ic:'💧',n:'Air (penyiraman)',u:' mL/hari',min:0,max:100,lo:45,hi:75,snd:'water'},
+ {k:'light',ic:'☀️',n:'Intensitas cahaya',u:' %',min:0,max:100,lo:60,hi:90,snd:'light'},
+ {k:'temp',ic:'🌡️',n:'Suhu lingkungan',u:' °C',min:10,max:45,lo:25,hi:30,snd:'temp'},
+ {k:'hum',ic:'🌫️',n:'Kelembaban udara',u:' %',min:20,max:100,lo:60,hi:80,snd:'mist'},
+ {k:'N',ic:'🟦',n:'Nitrogen (N)',u:' %',min:0,max:100,lo:50,hi:80,snd:'mineral'},
+ {k:'P',ic:'🟧',n:'Fosfor (P)',u:' %',min:0,max:100,lo:50,hi:80,snd:'mineral'},
+ {k:'K',ic:'⬜',n:'Kalium (K)',u:' %',min:0,max:100,lo:50,hi:80,snd:'mineral'}
+];
+const INT=[
+ {k:'ga',ic:'📏',n:'Giberelin (GA)',d:'memanjangkan batang, memecah dormansi',lo:0,hi:55},
+ {k:'aux',ic:'🌱',n:'Auksin (IAA)',d:'pemanjangan sel, akar, dominansi apikal',lo:10,hi:50},
+ {k:'cyt',ic:'🌿',n:'Sitokinin',d:'pembelahan sel, tunas lateral, tunda penuaan',lo:10,hi:60},
+ {k:'eth',ic:'🍂',n:'Etilen',d:'pematangan, daun gugur, batang pendek-tebal',lo:0,hi:10},
+ {k:'aba',ic:'💤',n:'Asam absisat (ABA)',d:'tutup stomata, dormansi, hambat tumbuh',lo:0,hi:10}
+].map(o=>({...o,min:0,max:100,hor:true,snd:'hormone'}));
+let lastTick=0;
+function setVal(c){const v=p[c.k];$('v-'+c.k).textContent=c.hor?(v===0?'alami':'+'+v+' %'):v+c.u}
+function ctlHTML(c){
+  const lo=(c.lo-c.min)/(c.max-c.min)*100,hi=(c.hi-c.min)/(c.max-c.min)*100;
+  return `<div class="ctl"><label><span>${c.ic} ${c.n}</span><b id="v-${c.k}"></b></label><input type="range" id="s-${c.k}" min="${c.min}" max="${c.max}" step="1" value="${p[c.k]}" style="--lo:${lo}%;--hi:${hi}%" aria-label="${c.n}">${c.d?`<small>${c.d}</small>`:''}</div>`;
+}
+function buildControls(){
+  $('ctlExt').innerHTML=EXT.map(ctlHTML).join('');
+  $('ctlHor').innerHTML=INT.map(ctlHTML).join('');
+  [...EXT,...INT].forEach(c=>{
+    const el=$('s-'+c.k);
+    el.addEventListener('input',()=>{
+      p[c.k]=+el.value;setVal(c);chartDirty=true;
+      const n=performance.now();if(n-lastTick>75){lastTick=n;sfx(c.snd,+el.value-c.min)}
+    });
+    setVal(c);
+  });
+}
+function syncUI(){
+  [...EXT,...INT].forEach(c=>{$('s-'+c.k).value=p[c.k];setVal(c)});
+  document.querySelectorAll('#gene button').forEach(b=>b.classList.toggle('on',+b.dataset.g===p.gene));
+}
+const PRESETS=[
+ {k:'ctl',n:'Kontrol',o:{},msg:'Kontrol: semua faktor optimum'},
+ {k:'dry',n:'Kekeringan',o:{water:15},msg:'Kekeringan: air hanya 15 mL/hari'},
+ {k:'flood',n:'Banjir',o:{water:100,hum:95},msg:'Banjir: air berlebih dan udara sangat lembab'},
+ {k:'dark',n:'Gelap',o:{light:0},msg:'Gelap total: amati etiolasi'},
+ {k:'cold',n:'Dingin',o:{temp:14},msg:'Suhu dingin 14 °C'},
+ {k:'hot',n:'Panas-kering',o:{temp:40,hum:25},msg:'Suhu 40 °C dan kelembaban 25 %'},
+ {k:'lowN',n:'Kurang N',o:{N:5},msg:'Defisiensi nitrogen'},
+ {k:'lowP',n:'Kurang P',o:{P:5},msg:'Defisiensi fosfor'},
+ {k:'lowK',n:'Kurang K',o:{K:5},msg:'Defisiensi kalium'},
+ {k:'dwga',n:'Kerdil + GA',o:{gene:0,ga:70},msg:'Varietas kerdil diberi giberelin'}
+];
+function applyPreset(k){
+  const pr=PRESETS.find(x=>x.k===k);if(!pr)return;
+  p={...DEF,...pr.o};syncUI();restart();running=true;updPlay();sfx('start');toast(pr.msg);
+}
+function restart(){
+  if(s.day>=3)prev=s.hist.slice();
+  s=initState();lastStage=0;warned=false;running=false;chartDirty=true;updPlay();updUI(true);
+}
+function resetAll(){
+  p={...DEF};syncUI();s=initState();prev=null;lastStage=0;warned=false;running=false;speed=1;
+  $('bSpeed').textContent='⏩ ×1';metric='H';$('mH').classList.add('on');$('mB').classList.remove('on');
+  updPlay();updUI(true);chartDirty=true;sfx('reset');toast('Semua pengaturan dikembalikan ke kondisi awal');
+}
+function updPlay(){
+  const b=$('bPlay');
+  if(running){b.textContent='⏸ Jeda'}
+  else b.textContent=s.day>=30?'▶ Ulangi':(s.day>0?'▶ Lanjut':'▶ Mulai');
+}
+function togglePlay(){
+  if(s.day>=30){restart()}
+  running=!running;updPlay();sfx(running?'start':'pause');
+}
+function saveRow(){
+  if(s.day<1){toast('Jalankan simulasi dulu, lalu simpan data');sfx('bad');return}
+  if(rows.length>=10){toast('Tabel penuh (10 baris). Kosongkan tabel di LKPD.');sfx('bad');return}
+  const hr=[['GA',p.ga],['Aux',p.aux],['Sit',p.cyt],['Etl',p.eth],['ABA',p.aba]].filter(x=>x[1]>0).map(x=>x[0]+x[1]).join(' ');
+  rows.push({day:Math.round(s.day*10)/10,water:p.water,light:p.light,temp:p.temp,hum:p.hum,npk:`${p.N}-${p.P}-${p.K}`,gene:GN[p.gene],hor:hr||'—',H:+s.H.toFixed(1),B:+s.B.toFixed(1),L:Math.round(s.L),stage:STG[s.stage].slice(3),dead:s.dead});
+  renderRows();saveLK();sfx('save');toast(`Data baris ${rows.length} disimpan ke LKPD`);
+}
+
+/* ================== GAMBAR ADEGAN ================== */
+const sc=$('scene');
+function chip(g,txt,x,y){g.font='800 12px "Nunito Sans",sans-serif';g.textAlign='center';g.textBaseline='middle';const w=g.measureText(txt).width+14;g.fillStyle='rgba(255,255,255,.88)';g.beginPath();g.roundRect?g.roundRect(x-w/2,y-10,w,20,10):g.rect(x-w/2,y-10,w,20);g.fill();g.fillStyle='#17301f';g.fillText(txt,x,y+1)}
+function leafShape(g,x,y,ang,len,col,edge){
+  g.save();g.translate(x,y);g.rotate(ang);const w=len*.36;
+  g.beginPath();g.moveTo(0,0);g.bezierCurveTo(len*.25,-w,len*.7,-w*.95,len,0);g.bezierCurveTo(len*.7,w*.95,len*.25,w,0,0);
+  g.fillStyle=rgb(col);g.fill();g.lineWidth=.8+edge*2.4;g.strokeStyle=edge>.05?`rgba(120,70,30,${.35+.6*edge})`:rgb(mixc(col,[0,0,0],.28));g.stroke();
+  g.beginPath();g.moveTo(0,0);g.lineTo(len*.92,0);g.strokeStyle='rgba(255,255,255,.32)';g.lineWidth=.9;g.stroke();
+  if(edge>.4){g.fillStyle=`rgba(110,66,30,${edge*.7})`;g.beginPath();g.ellipse(len*.93,0,len*.08,w*.35,0,0,7);g.fill()}
+  g.restore();
+}
+function leafCol(old){
+  const c=clamp((s.chl-s.defN*45*old)/100,0,1);
+  let col=hsl2rgb(52+78*c,40+25*c,62-30*c);
+  col=mixc(col,[108,56,122],clamp(s.defP*.8*(.55+.45*old),0,.8));
+  if(s.dead)col=mixc(col,[122,90,52],.92);
+  return col;
+}
+function flower(g,x,y,r){
+  for(let i=0;i<5;i++){const a=i*Math.PI*2/5-Math.PI/2;g.fillStyle='#f6a9c8';g.beginPath();g.ellipse(x+Math.cos(a)*r*.8,y+Math.sin(a)*r*.8,r*.7,r*.45,a,0,7);g.fill()}
+  g.fillStyle='#ffd23c';g.beginPath();g.arc(x,y,r*.45,0,7);g.fill();
+}
+function drawScene(t){
+  const g=sc.getContext('2d');g.setTransform(2,0,0,2,0,0);const W=700,H=350,lt=p.light/100,BY=270;
+  const sky=g.createLinearGradient(0,0,0,H);sky.addColorStop(0,rgb(mixc([14,20,48],[116,196,238],lt)));sky.addColorStop(1,rgb(mixc([30,40,78],[222,243,255],lt)));
+  g.fillStyle=sky;g.fillRect(0,0,W,H);
+  if(lt<.35){g.fillStyle=`rgba(255,255,255,${(.35-lt)*2})`;for(let i=0;i<30;i++)g.fillRect(rnd(i)*W,rnd(i+40)*150,1.8,1.8)}
+  if(lt>.05){g.fillStyle=`rgba(255,240,170,${.15*lt})`;g.beginPath();g.moveTo(78,66);g.lineTo(480,170);g.lineTo(330,340);g.closePath();g.fill()}
+  /* matahari */
+  const sx=70,sy=62,rad=12+14*lt,gl=g.createRadialGradient(sx,sy,2,sx,sy,30+60*lt);
+  gl.addColorStop(0,`rgba(255,235,120,${.25+.6*lt})`);gl.addColorStop(1,'rgba(255,235,120,0)');
+  g.fillStyle=gl;g.beginPath();g.arc(sx,sy,30+60*lt,0,7);g.fill();
+  g.save();g.translate(sx,sy);g.rotate(t*.2);g.strokeStyle=`rgba(255,200,60,${.3+.7*lt})`;g.lineWidth=2.5;g.lineCap='round';
+  for(let i=0;i<12;i++){g.rotate(Math.PI/6);g.beginPath();g.moveTo(rad+4,0);g.lineTo(rad+8+10*lt,0);g.stroke()}g.restore();
+  g.fillStyle=lt<.04?'#5d6a86':rgb(mixc([200,200,210],[255,205,50],lt));g.beginPath();g.arc(sx,sy,rad,0,7);g.fill();
+  chip(g,`💡 ${p.light}%`,sx,sy+48);
+  /* kabut kelembaban */
+  const nm=Math.round(p.hum/100*14);
+  for(let i=0;i<nm;i++){const x=((rnd(i)*760+t*(6+8*rnd(i+9)))%760)-30,y=70+rnd(i+3)*250,r=14+rnd(i+5)*20;g.fillStyle='rgba(255,255,255,.13)';g.beginPath();g.arc(x,y,r,0,7);g.fill()}
+  /* rak */
+  g.fillStyle='#8a6a44';g.fillRect(0,338,W,12);g.fillStyle='#6e5233';g.fillRect(0,338,W,2);
+  /* tanah di pot */
+  const soil=mixc([205,172,112],[70,48,32],p.water/100);
+  g.save();g.beginPath();g.rect(274,270,152,64);g.clip();
+  const sg=g.createLinearGradient(0,270,0,334);sg.addColorStop(0,rgb(soil));sg.addColorStop(1,rgb(mixc(soil,[0,0,0],.28)));g.fillStyle=sg;g.fillRect(274,270,152,64);
+  [['N',[59,130,246],0],['P',[245,158,11],50],['K',[248,250,252],100]].forEach(([k,col,o])=>{const n=Math.round(p[k]/100*16);g.fillStyle=rgb(col);for(let i=0;i<n;i++){g.beginPath();g.arc(278+rnd(i+o)*144,274+rnd(i+o+200)*56,1.9,0,7);g.fill()}});
+  /* akar */
+  const r=clamp(s.R,0,1.1),depth=8+54*(r/1.1),rc=mixc([240,230,198],[110,80,52],clamp(s.rot*1.1,0,1));
+  g.strokeStyle=rgb(rc);g.lineCap='round';g.lineJoin='round';
+  const N=14,pts=[];for(let k=0;k<=N;k++){const u=k/N;pts.push([350+Math.sin(u*3+.5)*5*u,BY+depth*u])}
+  g.lineWidth=2.4;g.beginPath();pts.forEach((q,i)=>i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]));g.stroke();
+  const nl=3+Math.round(11*r);
+  for(let k=0;k<nl;k++){
+    const u=.1+.85*(k/Math.max(1,nl-1)),side=k%2?-1:1,b=pts[Math.round(u*N)],len=(8+56*r)*(1-.55*u)*(.7+.3*rnd(k+1));
+    const a0=.25+.5*rnd(k+7),ang=side>0?a0:Math.PI-a0,ex=b[0]+Math.cos(ang)*len,ey=b[1]+Math.sin(ang)*len;
+    g.lineWidth=1.4;g.beginPath();g.moveTo(b[0],b[1]);g.quadraticCurveTo((b[0]+ex)/2,b[1]+len*.05,ex,ey);g.stroke();
+    g.lineWidth=.8;for(let h=0;h<2;h++){const f=.45+.4*h;const hx=b[0]+(ex-b[0])*f,hy=b[1]+(ey-b[1])*f;g.beginPath();g.moveTo(hx,hy);g.lineTo(hx+side*5,hy+6);g.stroke()}
+  }
+  g.restore();
+  if(p.water>88){g.fillStyle='rgba(90,160,220,.55)';g.fillRect(274,266,152,5)}
+  /* pot kaca */
+  g.beginPath();g.moveTo(268,262);g.lineTo(432,262);g.lineTo(426,338);g.lineTo(274,338);g.closePath();g.fillStyle='rgba(255,255,255,.10)';g.fill();g.strokeStyle='rgba(255,255,255,.75)';g.lineWidth=3;g.stroke();
+  g.fillStyle='#3f6f73';g.fillRect(262,258,176,8);
+  /* batang */
+  const hpx=Math.min(220,s.H*2.55),sw=Math.sin(t*1.2)*(1-s.wilt);
+  const stemPt=u=>({x:350+(sw*6+s.wilt*.5*hpx)*u*u,y:BY-hpx*u*(1-.35*s.wilt*u)});
+  const xe=clamp((45-p.light)/45,0,1);
+  const w0=clamp((2.4+3.4*Math.sqrt(s.B/30))*(1-.55*xe)*(1+.8*(p.eth/100))*(1-.3*Math.max(0,p.ga/100-.6)),1.6,8);
+  const cc=clamp(s.chl/100,0,1);let stc=hsl2rgb(60+55*cc,35+25*cc,78-40*cc);if(s.dead)stc=[120,90,52];
+  g.strokeStyle=rgb(stc);g.lineCap='round';
+  for(let k=0;k<24;k++){const a=stemPt(k/24),b=stemPt((k+1)/24);g.lineWidth=w0*(1-.45*k/24);g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b.x,b.y);g.stroke()}
+  /* daun */
+  const nL=Math.ceil(s.L-1e-6),lenBase=12+34*s.ls;
+  for(let i=0;i<nL;i++){
+    const tt=nL<=1?.6:.14+.84*i/(nL-1),pt=stemPt(tt),fr=clamp(s.L-i,0,1),side=i%2?-1:1,old=1-tt;
+    const th=(35+30*old)*Math.PI/180+s.wilt*1.3,ang=-Math.PI/2+side*th+Math.sin(t*1.6+i)*.03*(1-s.wilt);
+    leafShape(g,pt.x,pt.y,ang,lenBase*(.65+.35*old)*fr,leafCol(old),s.dead?0:s.defK*clamp(.4+old,0,1));
+  }
+  /* cabang */
+  const nb=Math.min(6,Math.ceil(s.br-1e-6)),ends=[];
+  for(let j=0;j<nb;j++){
+    const tj=.25+.11*j,pt=stemPt(tj),side=j%2?-1:1,fr=clamp(s.br-j,0,1),bl=(12+.28*hpx)*fr*(1-.25*s.wilt);
+    const a0=-Math.PI/2+side*(.9+.5*s.wilt),ex=pt.x+Math.cos(a0)*bl,ey=pt.y+Math.sin(a0)*bl;
+    g.strokeStyle=rgb(stc);g.lineWidth=Math.max(1.2,w0*.5);g.beginPath();g.moveTo(pt.x,pt.y);g.lineTo(ex,ey);g.stroke();
+    const col=leafCol(.4),ll=lenBase*.55*fr;
+    leafShape(g,ex,ey,a0-.5,ll,col,s.dead?0:s.defK*.5);leafShape(g,ex,ey,a0+.5,ll,col,s.dead?0:s.defK*.5);leafShape(g,ex,ey,a0,ll*1.1,col,s.dead?0:s.defK*.5);
+    ends.push([ex,ey]);
+  }
+  /* bunga & buah */
+  const top=stemPt(1);
+  if(!s.dead&&s.stage>=2){
+    if(s.stage===2){flower(g,top.x,top.y-2,8+hpx*.02);ends.forEach(e=>flower(g,e[0],e[1],5))}
+    else{g.fillStyle='#e8532b';[[-7,6],[6,9]].forEach(o=>{g.beginPath();g.arc(top.x+o[0],top.y+o[1],6,0,7);g.fill();g.fillStyle='#2f7a3a';g.fillRect(top.x+o[0]-2,top.y+o[1]-9,4,3);g.fillStyle='#e8532b'});ends.forEach(e=>{g.beginPath();g.arc(e[0],e[1]+3,4,0,7);g.fill()})}
+  }
+  /* daun gugur */
+  const ns=Math.min(6,Math.floor(s.shed));
+  for(let i=0;i<ns;i++){leafShape(g,290+rnd(i+60)*120,268+rnd(i+70)*2,(rnd(i+80)-.5)*1.2,16,[150,110,50],0)}
+  /* penyiraman */
+  const wx=218,wy=152;g.fillStyle='#4f8fa8';g.beginPath();g.roundRect?g.roundRect(wx,wy,38,28,6):g.rect(wx,wy,38,28);g.fill();
+  g.strokeStyle='#4f8fa8';g.lineWidth=5;g.beginPath();g.moveTo(256,170);g.lineTo(282,186);g.stroke();g.lineWidth=3;g.beginPath();g.arc(wx+4,wy+8,10,Math.PI*.9,Math.PI*1.9);g.stroke();
+  if(p.water>2){const nd=Math.ceil(p.water/100*7);g.fillStyle='rgba(70,150,230,.95)';for(let i=0;i<nd;i++){const per=82,ph=((t*(60+p.water*.5)+i*(per/nd))%per);const y=190+ph;if(y<268){g.beginPath();g.arc(285+(i%3)*5-4,y,2.2,0,7);g.fill()}}}
+  /* termometer */
+  const tx=655,fr=clamp((p.temp-10)/35,0,1),tcol=mixc([59,130,246],[239,68,68],fr);
+  g.fillStyle='rgba(255,255,255,.85)';g.beginPath();g.roundRect?g.roundRect(648,66,14,184,7):g.rect(648,66,14,184);g.fill();
+  g.fillStyle=rgb(tcol);g.beginPath();g.arc(tx,250,10,0,7);g.fill();g.fillRect(652,250-170*fr,6,170*fr);
+  g.strokeStyle='rgba(20,40,30,.5)';g.lineWidth=1;for(let v=10;v<=45;v+=5){const y=250-170*(v-10)/35;g.beginPath();g.moveTo(662,y);g.lineTo(667,y);g.stroke()}
+  chip(g,`🌡️ ${p.temp} °C`,tx,278);chip(g,`💧 ${p.hum} %`,tx,304);
+  /* legenda hara */
+  g.font='800 11.5px "Nunito Sans",sans-serif';g.textAlign='left';g.textBaseline='middle';
+  [['N',[59,130,246],14],['P',[245,158,11],44],['K',[248,250,252],74]].forEach(([k,col,x])=>{g.fillStyle=rgb(col);g.beginPath();g.arc(x,330,4,0,7);g.fill();g.fillStyle='rgba(255,255,255,.95)';g.shadowColor='rgba(0,0,0,.6)';g.shadowBlur=3;g.fillText(k,x+8,331);g.shadowBlur=0});
+  if(s.dead){g.font='800 15px "Nunito Sans",sans-serif';g.textAlign='center';g.fillStyle='rgba(255,255,255,.92)';g.fillRect(262,22,176,26);g.fillStyle='#8a2f1f';g.fillText('Tanaman mati',350,36)}
+}
+
+/* ================== GRAFIK ================== */
+function drawChart(){
+  const cv=$('chart'),g=cv.getContext('2d');g.setTransform(2,0,0,2,0,0);g.clearRect(0,0,400,210);
+  const cM=css('--muted'),cL=css('--line'),cG=css('--green'),cB=css('--blue');
+  const L=38,R=10,T=8,B=24,iw=400-L-R,ih=210-T-B,ymax=metric==='H'?90:50,key=metric;
+  const X=d=>L+d/30*iw,Y=v=>T+ih*(1-clamp(v/ymax,0,1));
+  g.font='600 11px "Nunito Sans",sans-serif';g.fillStyle=cM;g.strokeStyle=cL;g.lineWidth=1;g.textAlign='right';g.textBaseline='middle';
+  for(let v=0;v<=ymax;v+=ymax/5){g.beginPath();g.moveTo(L,Y(v));g.lineTo(400-R,Y(v));g.stroke();g.fillText(Math.round(v),L-5,Y(v))}
+  g.textAlign='center';g.textBaseline='top';for(let d=0;d<=30;d+=5){g.fillText(d,X(d),T+ih+5)}
+  g.fillText('hari',X(30)-4,T+ih+13);
+  const line=(h,col,dash,w)=>{if(!h||h.length<2)return;g.strokeStyle=col;g.lineWidth=w;g.setLineDash(dash);g.beginPath();h.forEach((q,i)=>i?g.lineTo(X(q.d),Y(q[key])):g.moveTo(X(q.d),Y(q[key])));g.stroke();g.setLineDash([])};
+  line(CTRL,cM,[5,4],1.8);line(prev,cB,[2,3],2);line(s.hist,cG,[],3);
+  const lp={d:s.day,H:s.H,B:s.B};g.fillStyle=cG;g.beginPath();g.arc(X(s.day),Y(lp[key]),4.5,0,7);g.fill();
+}
+
+/* ================== UI SIMULASI ================== */
+function updUI(force){
+  $('hudDay').textContent=Math.floor(s.day);
+  $('hudStage').textContent=STG[s.stage];
+  $('stH').innerHTML=s.H.toFixed(1)+'<em>cm</em>';
+  $('stB').innerHTML=s.B.toFixed(1)+'<em>g</em>';
+  $('stL').textContent=Math.round(s.L);
+  $('stR').textContent=Math.round(clamp(s.R,0,1)*100);
+  $('stC').innerHTML=Math.round(s.chl)+'<em>%</em>';
+  $('stK').innerHTML=Math.round(s.health)+'<em>%</em>';
+  $('barC').style.width=clamp(s.chl,0,100)+'%';
+  const hb=$('barK');hb.style.width=clamp(s.health,0,100)+'%';hb.style.background=s.health>60?'var(--green)':s.health>35?'var(--warn)':'var(--danger)';
+  $('track').innerHTML=STG.map((n,i)=>`<div class="${i===s.stage?'on':i<s.stage?'pass':''}">${n}</div>`).join('');
+  diag();
+}
+function diag(){
+  const c=calc(p),L=[];
+  if(s.dead)L.push(['bad','💀 Tanaman mati: kondisi terlalu ekstrem']);
+  if(c.weff<28)L.push(['bad','🥀 Layu: air kurang, turgor sel turun, stomata menutup']);
+  if(p.water>85||s.rot>.4)L.push(['bad','🌊 Akar membusuk: air berlebih, O₂ tanah habis']);
+  if(p.light<25)L.push(['warn','🌑 Etiolasi: batang panjang-kurus, pucat, daun kecil']);
+  if(p.temp<18)L.push(['warn','🥶 Suhu rendah: enzim lambat, perkembangan tertunda']);
+  if(p.temp>35)L.push(['bad','🔥 Suhu tinggi: enzim terganggu, transpirasi naik']);
+  if(p.hum<35)L.push(['warn','🏜️ Udara kering: transpirasi tinggi']);
+  if(p.hum>92)L.push(['warn','🍄 Terlalu lembab: transpirasi turun, risiko jamur']);
+  if(p.N<25)L.push(['warn','🟡 Kurang N: daun tua menguning (klorosis)']);
+  if(p.P<25)L.push(['warn','🟣 Kurang P: daun keunguan, akar lemah, bunga lambat']);
+  if(p.K<25)L.push(['warn','🟤 Kurang K: tepi daun tua cokelat mengering']);
+  if(Math.max(p.N,p.P,p.K)>92)L.push(['warn','🧂 Hara berlebih: tanah terlalu pekat, serapan air terganggu']);
+  if(p.ga>80)L.push(['warn','📏 GA berlebih: batang tinggi tetapi lemah']);
+  if(p.eth>40)L.push(['warn','🍂 Etilen: daun gugur, batang pendek-tebal']);
+  if(p.aba>40)L.push(['warn','💤 ABA tinggi: stomata menutup, pertumbuhan tertahan']);
+  if(p.cyt>50)L.push(['ok','🌿 Sitokinin: tunas lateral banyak']);
+  if(p.aux>65)L.push(['warn','⚠️ Auksin berlebih: menghambat batang dan akar']);
+  else if(p.aux>=25)L.push(['ok','🌱 Auksin: dominansi apikal, cabang sedikit']);
+  if(s.stage>=2&&!s.dead)L.push(['ok',s.stage===2?'🌸 Fase generatif: berbunga':'🍅 Fase generatif: berbuah']);
+  if(!L.length)L.push(['ok','✅ Kondisi mendukung pertumbuhan optimum']);
+  const html=L.slice(0,4).map(x=>`<div class="${x[0]}">${x[1]}</div>`).join('');
+  const d=$('diag');if(d.dataset.h!==html){d.dataset.h=html;d.innerHTML=html}
+}
+
+/* ================== LOOP ================== */
+let last=performance.now(),uiT=0,curTab='teori';
+function frame(now){
+  const dt=Math.min(.1,(now-last)/1000);last=now;
+  if(curTab==='sim'){
+    if(running){
+      let days=dt*1.5*speed;
+      while(days>1e-9){
+        const d=Math.min(.1,days);step(s,p,d);s.day+=d;sample(s);days-=d;
+        if(s.day>=30-1e-6){s.day=30;running=false;sample(s);updPlay();sfx('done');toast('Percobaan selesai. Tekan 💾 Simpan data untuk mencatat hasilnya.');break}
+      }
+      chartDirty=true;
+      if(s.stage!==lastStage){if(s.stage>lastStage){sfx('stage');toast('Tahap perkembangan: '+STG[s.stage])}lastStage=s.stage}
+      if(!warned&&(s.health<40||s.dead)){warned=true;sfx('warn');toast(s.dead?'Tanaman mati. Coba kondisi yang lebih seimbang.':'Peringatan: kesehatan tanaman menurun')}
+      if(s.dead&&running){running=false;updPlay()}
+    }
+    drawScene(now/1000);
+    if(now-uiT>120){uiT=now;updUI();if(chartDirty){drawChart();chartDirty=false}}
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ================== TEORI ================== */
+const TOP=[
+ {id:'intro',ic:'🌱',t:'Pertumbuhan & Perkembangan',type:'intro'},
+ {id:'gen',ic:'🧬',t:'Gen',type:'gen',sim:'dwga',simTxt:'Bandingkan varietas kerdil dengan dan tanpa giberelin.'},
+ {id:'hormon',ic:'⚗️',t:'Hormon Tumbuhan',type:'hormon',sim:'dwga',simTxt:'Beri hormon di tab Faktor Internal dan amati tinggi, cabang, serta daun.'},
+ {id:'water',ic:'💧',t:'Air',type:'curve',fn:'water',x0:0,x1:100,unit:'penyiraman (mL/hari)',sim:'dry',simTxt:'Bandingkan preset Kekeringan dan Banjir dengan Kontrol.',
+  lead:'Air menyusun 80–90% bobot sel tumbuhan. Tekanan turgor yang dihasilkan air mendorong dinding sel meregang, dan inilah dasar pembesaran sel.',
+  pts:['Pelarut dan pengangkut mineral dari akar ke daun lewat xilem.','Bahan baku fotosintesis dan pengatur membuka-menutupnya stomata.','Kekurangan air: turgor turun, tanaman layu, stomata menutup, pertumbuhan terhenti.','Kelebihan air: rongga tanah penuh air, O₂ habis, akar membusuk karena respirasi akar terganggu.']},
+ {id:'light',ic:'☀️',t:'Intensitas Cahaya',type:'curve',fn:'light',x0:0,x1:100,unit:'intensitas cahaya (%)',sim:'dark',simTxt:'Jalankan preset Gelap, lalu bandingkan grafik tinggi dengan biomassa.',
+  lead:'Cahaya adalah sumber energi fotosintesis sekaligus sinyal yang mengatur bentuk tumbuhan (fotomorfogenesis).',
+  pts:['Intensitas cahaya memengaruhi laju fotosintesis, sehingga memengaruhi biomassa, klorofil, dan ukuran daun.','Gelap memicu etiolasi: batang memanjang cepat, kurus, pucat, daun kecil karena klorofil tidak terbentuk.','Cahaya satu arah memicu fototropisme: auksin menumpuk di sisi gelap sehingga batang membengkok ke cahaya.','Cahaya terlalu kuat dapat merusak fotosistem dan meningkatkan penguapan.']},
+ {id:'temp',ic:'🌡️',t:'Suhu Lingkungan',type:'curve',fn:'temp',x0:10,x1:45,unit:'suhu (°C)',sim:'cold',simTxt:'Lihat tahap perkembangan pada preset Dingin dan Panas-kering.',
+  lead:'Pertumbuhan bergantung pada enzim, dan enzim hanya bekerja baik pada rentang suhu tertentu: minimum, optimum, maksimum.',
+  pts:['Suhu rendah memperlambat reaksi enzim, pembelahan sel, dan serapan air oleh akar.','Suhu terlalu tinggi mendenaturasi enzim dan menaikkan transpirasi sehingga tanaman layu.','Suhu menentukan kecepatan perkembangan: tanaman perlu mengumpulkan unit panas sebelum berbunga.','Sebagian tumbuhan butuh suhu dingin (vernalisasi) agar dapat berbunga.']},
+ {id:'hum',ic:'🌫️',t:'Kelembaban Udara',type:'curve',fn:'hum',x0:20,x1:100,unit:'kelembaban udara (%)',sim:'hot',simTxt:'Coba preset Panas-kering, lalu naikkan penyiraman.',
+  lead:'Kelembaban udara menentukan selisih uap air antara ruang antarsel daun dan udara luar, sehingga mengendalikan laju transpirasi.',
+  pts:['Kelembaban rendah: transpirasi tinggi, tanaman cepat kehilangan air, stomata menutup, fotosintesis turun.','Kelembaban sangat tinggi: transpirasi rendah, aliran air dan mineral ke daun melambat, jamur mudah tumbuh.','Pengaruhnya berinteraksi dengan suhu dan penyiraman: udara panas dan kering menaikkan kebutuhan air.']},
+ {id:'mineral',ic:'🧂',t:'Nutrisi Mineral',type:'mineral',sim:'lowN',simTxt:'Bandingkan preset Kurang N, Kurang P, dan Kurang K. Perhatikan warna daun.'}
+];
+let curTopic='intro';
+function renderMenu(){
+  $('tMenu').innerHTML=TOP.map(t=>`<button data-id="${t.id}"><span>${t.ic}</span>${t.t}</button>`).join('');
+  $('tMenu').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;sfx('click');renderTopic(b.dataset.id)});
+}
+function drawCurve(cv,fn,x0,x1,unit){
+  const g=cv.getContext('2d');g.setTransform(2,0,0,2,0,0);const W=380,H=236;g.clearRect(0,0,W,H);
+  const cM=css('--muted'),cG=css('--green'),cL=css('--line'),ink=css('--ink');
+  const pl=40,pr=10,pt=12,pb=44,iw=W-pl-pr,ih=H-pt-pb,X=v=>pl+(v-x0)/(x1-x0)*iw,Y=v=>pt+ih*(1-v);
+  let lo=null,hi=null;for(let i=0;i<=200;i++){const v=x0+(x1-x0)*i/200;if(F[fn](v)>=.97){if(lo===null)lo=v;hi=v}}
+  g.fillStyle='rgba(212,69,43,.14)';g.fillRect(X(x0),pt,X(lo)-X(x0),ih);
+  g.fillStyle='rgba(60,170,100,.22)';g.fillRect(X(lo),pt,X(hi)-X(lo),ih);
+  g.fillStyle='rgba(224,160,30,.17)';g.fillRect(X(hi),pt,X(x1)-X(hi),ih);
+  g.strokeStyle=cL;g.lineWidth=1;g.strokeRect(pl,pt,iw,ih);
+  g.beginPath();for(let i=0;i<=120;i++){const v=x0+(x1-x0)*i/120;const px=X(v),py=Y(F[fn](v));i?g.lineTo(px,py):g.moveTo(px,py)}
+  g.strokeStyle=cG;g.lineWidth=3.2;g.stroke();
+  g.font='800 12px "Nunito Sans",sans-serif';g.fillStyle=ink;g.textAlign='center';g.textBaseline='top';
+  g.fillText('kurang',(X(x0)+X(lo))/2,pt+5);g.fillText('optimum',(X(lo)+X(hi))/2,pt+5);if(hi<x1-(x1-x0)*.08)g.fillText('berlebih',(X(hi)+X(x1))/2,pt+5);
+  g.font='600 11.5px "Nunito Sans",sans-serif';g.fillStyle=cM;
+  [x0,(x0+x1)/2,x1].forEach(v=>g.fillText(Math.round(v),X(v),pt+ih+5));
+  g.fillText(unit,pl+iw/2,pt+ih+22);
+  g.save();g.translate(11,pt+ih/2);g.rotate(-Math.PI/2);g.fillText('laju tumbuh relatif',0,-3);g.restore();
+}
+function renderTopic(id){
+  const t=TOP.find(x=>x.id===id);curTopic=id;
+  document.querySelectorAll('#tMenu button').forEach(b=>b.classList.toggle('on',b.dataset.id===id));
+  let h=`<div class="th"><span class="tic">${t.ic}</span><h2>${t.t}</h2></div>`;
+  if(t.type==='intro'){
+    h+=`<p class="lead">Tumbuhan terus berubah sejak biji berkecambah sampai berbuah. Perubahan itu dibedakan menjadi dua proses yang berjalan bersamaan.</p>
+    <div class="g2">
+      <div class="mini hl"><h4>📏 Pertumbuhan</h4><p>Pertambahan ukuran, jumlah, dan massa yang bersifat <b>tidak dapat balik</b> (irreversibel) dan dapat diukur (kuantitatif).</p><span class="k"><b>Contoh:</b> tinggi batang, jumlah daun, biomassa kering. Terjadi lewat meristem apikal (memanjang) dan kambium (menebal).</span></div>
+      <div class="mini hl"><h4>🌸 Perkembangan</h4><p>Proses menuju <b>kedewasaan</b>: sel berdiferensiasi sehingga struktur dan fungsinya khusus (kualitatif).</p><span class="k"><b>Contoh:</b> perkecambahan, munculnya akar dan daun, pembungaan, pembuahan.</span></div>
+    </div>
+    <p class="lead" style="margin-bottom:8px">Keduanya dipengaruhi dua kelompok faktor:</p>
+    <div class="g2">
+      <div class="mini"><h4>🧬 Faktor internal</h4><p>Berasal dari dalam tubuh tumbuhan.</p><div class="chips2"><i>Gen</i><i>Hormon</i></div></div>
+      <div class="mini"><h4>🌤️ Faktor eksternal</h4><p>Berasal dari lingkungan.</p><div class="chips2"><i>Air</i><i>Cahaya</i><i>Suhu</i><i>Kelembaban</i><i>Nutrisi mineral</i></div></div>
+    </div>
+    <p style="font-size:14.5px;color:var(--muted);margin:0">Di lab ini kamu mengubah faktor-faktor tersebut, lalu mengamati akibatnya pada pertumbuhan (tinggi, biomassa) dan perkembangan (tahap hidup).</p>`;
+    $('tBody').innerHTML=h;return;
+  }
+  if(t.type==='gen'){
+    h+=`<p class="lead">Gen menentukan <b>potensi</b>: tinggi maksimum, bentuk daun, kepekaan terhadap hormon, sampai waktu berbunga. Hasil akhirnya (fenotipe) tetap ditentukan oleh interaksi gen dan lingkungan.</p>
+    <div class="formula">Fenotipe = Genotipe + Lingkungan</div>
+    <div class="g3">
+      <div class="mini"><h4>Kerdil (tt)</h4><p>Potensi tinggi ±28 cm.</p><span class="k">Mutan yang kekurangan giberelin aktif, sehingga <b>sangat responsif</b> bila diberi GA.</span></div>
+      <div class="mini hl"><h4>Normal</h4><p>Potensi tinggi ±60 cm.</p><span class="k">Giberelin alami cukup. Respons terhadap GA tambahan sedang.</span></div>
+      <div class="mini"><h4>Unggul</h4><p>Potensi tinggi ±80 cm.</p><span class="k">Hasil pemuliaan. Responsnya kecil karena GA bawaan sudah memadai.</span></div>
+    </div>
+    <ul class="pts"><li>Pada kacang ercis (Mendel), alel T (tinggi) dominan terhadap t (kerdil). Tanaman tt tidak membentuk enzim pembuat giberelin aktif.</li>
+    <li>Gen unggul tidak berguna bila air, cahaya, atau hara kurang: lingkungan membatasi potensi gen.</li></ul>`;
+  } else if(t.type==='hormon'){
+    h+=`<p class="lead">Hormon tumbuhan adalah senyawa organik dalam kadar sangat kecil yang dibentuk di satu bagian dan bekerja di bagian lain. Lima kelompok utama:</p>
+    <div class="g3" style="margin-bottom:0">
+      <div class="mini"><h4>🌱 Auksin (IAA)</h4><span class="k"><b>Dibentuk:</b> meristem apikal tunas, daun muda, ujung akar.</span><span class="k"><b>Fungsi:</b> memanjangkan sel, dominansi apikal, fototropisme dan geotropisme, memicu akar. Kadar tinggi malah menghambat.</span></div>
+      <div class="mini"><h4>📏 Giberelin (GA)</h4><span class="k"><b>Dibentuk:</b> daun muda, embrio, ujung akar.</span><span class="k"><b>Fungsi:</b> memanjangkan batang (terutama varietas kerdil), memecah dormansi biji, memacu pembungaan.</span></div>
+      <div class="mini"><h4>🌿 Sitokinin</h4><span class="k"><b>Dibentuk:</b> ujung akar.</span><span class="k"><b>Fungsi:</b> memacu pembelahan sel, tunas lateral, dan menunda penuaan (senescence) daun.</span></div>
+      <div class="mini"><h4>🍂 Etilen (gas)</h4><span class="k"><b>Dibentuk:</b> buah matang, jaringan menua atau terluka.</span><span class="k"><b>Fungsi:</b> mematangkan buah, menggugurkan daun, menghambat pemanjangan (batang pendek-tebal).</span></div>
+      <div class="mini"><h4>💤 Asam absisat (ABA)</h4><span class="k"><b>Dibentuk:</b> daun dewasa, kloroplas, akar.</span><span class="k"><b>Fungsi:</b> menutup stomata saat kekeringan, menjaga dormansi biji dan tunas, menghambat tumbuh.</span></div>
+      <div class="mini hl"><h4>🤝 Bekerja bersama</h4><span class="k">Rasio auksin : sitokinin tinggi memacu akar, rendah memacu tunas (dasar kultur jaringan). GA dan ABA saling berlawanan pada perkecambahan.</span></div>
+    </div>`;
+  } else if(t.type==='mineral'){
+    h+=`<p class="lead">Mineral diserap akar sebagai ion. Pertumbuhan dibatasi oleh unsur yang paling kurang (<b>hukum minimum Liebig</b>), walaupun unsur lain berlimpah.</p>
+    <div class="g3" style="margin-bottom:0">
+      <div class="mini"><h4>🟦 Nitrogen (N)</h4><span class="k"><b>Peran:</b> penyusun asam amino, protein, klorofil.</span><span class="k"><b>Kurang:</b> klorosis dimulai dari daun tua, tumbuh kerdil.</span></div>
+      <div class="mini"><h4>🟧 Fosfor (P)</h4><span class="k"><b>Peran:</b> penyusun ATP, DNA/RNA; penting untuk akar dan bunga.</span><span class="k"><b>Kurang:</b> daun keunguan, akar lemah, pembungaan lambat.</span></div>
+      <div class="mini"><h4>⬜ Kalium (K)</h4><span class="k"><b>Peran:</b> mengatur turgor sel penjaga stomata, mengaktifkan enzim.</span><span class="k"><b>Kurang:</b> tepi dan ujung daun tua cokelat mengering.</span></div>
+      <div class="mini"><h4>Magnesium (Mg)</h4><span class="k"><b>Peran:</b> atom pusat klorofil.</span><span class="k"><b>Kurang:</b> klorosis di antara tulang daun tua.</span></div>
+      <div class="mini"><h4>Besi (Fe)</h4><span class="k"><b>Peran:</b> sintesis klorofil, transpor elektron.</span><span class="k"><b>Kurang:</b> klorosis daun muda, tulang daun tetap hijau.</span></div>
+      <div class="mini"><h4>Kalsium (Ca)</h4><span class="k"><b>Peran:</b> penyusun dinding sel, pembelahan sel.</span><span class="k"><b>Kurang:</b> ujung tumbuh dan daun muda mati atau cacat.</span></div>
+    </div>`;
+  } else if(t.type==='curve'){
+    h+=`<div class="cols"><div class="tx"><p class="lead">${t.lead}</p><ul class="pts">${t.pts.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+    <div class="curvebox"><canvas id="cvCurve" width="760" height="472" style="width:380px;height:236px"></canvas><small>Kurva toleransi: pertumbuhan terbaik hanya pada kisaran optimum.</small></div></div>`;
+  }
+  h+=`<div class="simbox"><span>🔬 ${t.simTxt}</span><button class="btn pri" data-preset="${t.sim}">Coba di Simulasi →</button></div>`;
+  $('tBody').innerHTML=h;
+  if(t.type==='curve')drawCurve($('cvCurve'),t.fn,t.x0,t.x1,t.unit);
+}
+
+/* ================== PROSEDUR ================== */
+const STEPS=[
+ {t:'Rumuskan masalah & hipotesis',b:['Pilih <b>satu faktor</b> yang ingin diuji, misalnya cahaya.','Tulis rumusan masalah: “Bagaimana pengaruh intensitas cahaya terhadap tinggi dan biomassa tanaman?”','Tulis hipotesis berbentuk <i>jika… maka…</i> di LKPD bagian Analisis nomor 1.'],tip:'Hipotesis harus dapat diuji dengan data dari simulasi.'},
+ {t:'Kenali variabel',b:['<b>Variabel manipulasi:</b> faktor yang kamu ubah.','<b>Variabel respons:</b> hal yang kamu ukur.','<b>Variabel kontrol:</b> faktor lain yang dibiarkan optimum.'],tip:'Bila dua faktor diubah sekaligus, kamu tidak tahu mana penyebab perubahannya.',table:true},
+ {t:'Jalankan percobaan kontrol',b:['Buka tab <b>Simulasi</b>.','Tekan <b>↺ Reset semua</b> agar semua faktor optimum, lalu tekan <b>▶ Mulai</b>.','Biarkan sampai hari ke-30 (gunakan ⏩ untuk mempercepat).','Tekan <b>💾 Simpan data</b>. Ini baris pertama sebagai pembanding.'],tip:'Garis abu-abu pada grafik adalah kurva kontrol sebagai acuan.'},
+ {t:'Ubah satu faktor',b:['Pilih preset (mis. <b>Gelap</b>) atau geser <b>satu</b> slider di tab Faktor Eksternal atau Faktor Internal.','Tekan <b>🌱 Tanam ulang</b>, lalu <b>▶ Mulai</b>.','Amati tanaman, kotak peringatan di kiri adegan, dan grafik. Bandingkan dengan garis kontrol.'],tip:'Aktifkan “Petunjuk zona optimum” bila kesulitan menebak kisaran yang baik.'},
+ {t:'Catat data',b:['Pada hari ke-30 (atau saat ada kejadian menarik), tekan <b>💾 Simpan data</b>.','Data masuk otomatis ke tabel di LKPD.','Ulangi untuk minimal <b>4 percobaan</b>: air, cahaya, suhu atau hara, dan satu hormon.'],tip:'Tabel menampung 10 baris. Kolom Δ tinggi menunjukkan selisih terhadap kontrol.'},
+ {t:'Analisis & simpulan',b:['Buka tab <b>LKPD</b> dan bandingkan tiap baris dengan kontrol.','Jawab pertanyaan analisis dengan menyebut angka dari tabelmu.','Kerjakan kuis untuk menguji pemahaman.'],tip:'Kaitkan hasil dengan teori: turgor, fotosintesis, enzim, transpirasi, hormon.'}
+];
+let pStep=0;
+function renderProc(i){
+  pStep=i;const st=STEPS[i];
+  $('pSteps').innerHTML=STEPS.map((x,k)=>`<button data-i="${k}" class="${k===i?'on':k<i?'done':''}"><b>${k+1}</b><span>${x.t}</span></button>`).join('');
+  $('pMain').innerHTML=`<h3>Langkah ${i+1}: ${st.t}</h3><ul class="pts">${st.b.map(x=>`<li>${x}</li>`).join('')}</ul>
+   <div class="note" style="background:var(--leaf);border-left:5px solid var(--accent);border-radius:8px;padding:9px 12px;margin-top:14px;font-size:14px">💡 ${st.tip}</div>
+   <div class="pnav"><button class="btn" id="pPrev" ${i===0?'disabled style="opacity:.4"':''}>← Sebelumnya</button>
+   ${i<STEPS.length-1?'<button class="btn pri" id="pNext">Berikutnya →</button>':'<button class="btn pri" id="pGo">Mulai Simulasi →</button>'}</div>`;
+  $('pSide').innerHTML=`<h3 style="font-size:20px;margin-bottom:10px">Tabel variabel percobaan</h3>
+   <table class="vt"><tr><th>Jenis</th><th>Pada lab ini</th></tr>
+   <tr><td><b>Manipulasi</b></td><td>Satu faktor: air, cahaya, suhu, kelembaban, N/P/K, gen, atau hormon</td></tr>
+   <tr><td><b>Respons</b></td><td>Tinggi batang, biomassa, jumlah daun, klorofil, tahap perkembangan</td></tr>
+   <tr><td><b>Kontrol</b></td><td>Faktor lain tetap optimum: air 55, cahaya 75%, suhu 28 °C, kelembaban 70%, N-P-K 65%, varietas normal, hormon alami</td></tr></table>
+   <div class="note" style="background:var(--leaf);border-left:5px solid var(--green);border-radius:8px;padding:9px 12px;margin-top:14px;font-size:14px"><b>Pertumbuhan</b> diukur lewat tinggi dan biomassa. <b>Perkembangan</b> diamati lewat tahap: kecambah, vegetatif, berbunga, berbuah.</div>`;
+}
+
+/* ================== LKPD ================== */
+const QS=[
+ {q:'1. Hipotesis. Tuliskan hipotesis (jika… maka…) tentang pengaruh satu faktor pilihanmu terhadap tinggi dan biomassa tanaman.',h:'Contoh: Jika intensitas cahaya diturunkan menjadi 0%, maka tinggi batang … dan biomassa …'},
+ {q:'2. Bandingkan data Kontrol dengan Gelap (cahaya 0%). Mengapa tinggi batang dan biomassa menunjukkan pola berbeda? Kaitkan dengan etiolasi.',h:'Lihat grafik hari ke-8 dan hari ke-30. Pikirkan: apa yang dibutuhkan untuk menambah biomassa, dan apa yang memanjangkan sel batang?'},
+ {q:'3. Bandingkan varietas kerdil tanpa dan dengan giberelin. Bagaimana hubungan antara gen dan hormon dalam menentukan tinggi tanaman?',h:'Gen kerdil menyebabkan kekurangan … sehingga pemberian GA akan …'},
+ {q:'4. Pilih dua faktor eksternal lain. Jelaskan dengan data bagaimana kekurangan atau kelebihannya mengganggu pertumbuhan dan perkembangan, lalu tulis simpulanmu.',h:'Sebut angka tinggi, biomassa, dan tahap dari tabelmu. Hubungkan dengan turgor, enzim, transpirasi, atau fungsi mineral.'}
+];
+const QZ=[
+ {q:'Hormon yang menimbulkan dominansi apikal sehingga tunas lateral tertekan adalah…',o:['Sitokinin','Auksin','Etilen','Asam absisat'],a:1,e:'Auksin dari tunas apikal menekan tumbuhnya tunas lateral. Sitokinin bekerja berlawanan.'},
+ {q:'Kecambah yang tumbuh di tempat gelap tampak tinggi, kurus, dan pucat. Gejala ini disebut…',o:['Fototropisme','Vernalisasi','Etiolasi','Dormansi'],a:2,e:'Etiolasi: tanpa cahaya, batang memanjang cepat, klorofil tidak terbentuk, daun kecil.'},
+ {q:'Tanaman kerdil akibat kekurangan giberelin aktif diberi GA. Hasil yang paling mungkin adalah…',o:['Tetap kerdil','Mati karena keracunan','Batang memanjang mendekati tinggi normal','Daun gugur semua'],a:2,e:'GA memacu pemanjangan batang; varietas kerdil sangat responsif terhadapnya.'},
+ {q:'Daun tua menguning (klorosis) sementara daun muda masih hijau. Unsur yang paling mungkin kurang adalah…',o:['Besi (Fe)','Kalsium (Ca)','Fosfor (P)','Nitrogen (N)'],a:3,e:'N mudah dipindahkan dari daun tua ke daun muda, sehingga gejala kekurangannya muncul di daun tua. (Fe: klorosis daun muda.)'},
+ {q:'Pada suhu 40 °C dan kelembaban 25%, tanaman cepat layu karena…',o:['Transpirasi meningkat dan air cepat hilang','Fotosintesis berhenti karena cahaya','Akar menyerap terlalu banyak air','Kadar auksin naik drastis'],a:0,e:'Udara panas dan kering memperbesar selisih uap air daun-udara sehingga transpirasi melonjak.'},
+ {q:'Pernyataan yang tepat tentang pertumbuhan dan perkembangan adalah…',o:['Keduanya hanya dapat diukur dengan angka','Pertumbuhan bersifat kuantitatif dan tak dapat balik; perkembangan bersifat kualitatif menuju kedewasaan','Perkembangan hanya terjadi pada akar','Pertumbuhan terjadi setelah tanaman berbunga'],a:1,e:'Pertumbuhan: bertambah ukuran/massa (diukur). Perkembangan: diferensiasi dan pematangan, misalnya berbunga.'}
+];
+let qi=0,qs=0,qa=false;
+function renderAna(){
+  $('lk-ana').innerHTML=QS.map((x,i)=>`<div class="card qa"><h4>${x.q}</h4><textarea id="ans${i}" placeholder="Tulis jawabanmu di sini…" aria-label="Jawaban ${i+1}"></textarea><div class="hint" id="hint${i}">💡 ${x.h}</div><div class="bt"><button class="btn sm" data-hint="${i}">💡 Petunjuk</button></div></div>`).join('');
+  $('lk-ana').addEventListener('input',saveLK);
+}
+function renderRows(){
+  const tb=$('lkRows');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="15" class="empty">Belum ada data. Jalankan simulasi, lalu tekan 💾 Simpan data.</td></tr>';return}
+  tb.innerHTML=rows.map((r,i)=>{
+    let d='—',cl='';if(i>0&&rows[0].H>0){const v=(r.H-rows[0].H)/rows[0].H*100;d=(v>=0?'+':'')+v.toFixed(0)+'%';cl=v>=0?'pos':'neg'}
+    return `<tr><td>${i+1}</td><td>${r.day}</td><td>${r.water}</td><td>${r.light}</td><td>${r.temp}</td><td>${r.hum}</td><td>${r.npk}</td><td>${r.gene}</td><td>${r.hor}</td><td><b>${r.H}</b></td><td>${r.B}</td><td>${r.L}</td><td>${r.dead?'Mati':r.stage}</td><td class="${cl}">${d}</td><td><button class="btn sm" data-del="${i}" title="Hapus baris" aria-label="Hapus baris ${i+1}" style="padding:1px 7px">✕</button></td></tr>`;
+  }).join('');
+}
+function saveLK(){
+  try{localStorage.setItem('lm_lkpd',JSON.stringify({name:$('lkName').value,kelas:$('lkClass').value,ans:QS.map((_,i)=>$('ans'+i).value),rows}))}catch(e){}
+}
+function loadLK(){
+  try{const d=JSON.parse(localStorage.getItem('lm_lkpd')||'null');if(!d)return;$('lkName').value=d.name||'';$('lkClass').value=d.kelas||'';(d.ans||[]).forEach((v,i)=>{if($('ans'+i))$('ans'+i).value=v});rows=d.rows||[]}catch(e){}
+}
+function renderQuiz(){
+  const el=$('lk-quiz');
+  if(qi>=QZ.length){
+    el.innerHTML=`<div style="text-align:center;padding-top:40px"><div class="qhead">Hasil kuis</div><div class="score">${qs} / ${QZ.length}</div><p style="font-size:18px;margin:6px 0 20px">${qs===QZ.length?'Sempurna! Pemahamanmu sudah kuat.':qs>=4?'Bagus! Ulas lagi bagian yang masih keliru.':'Pelajari lagi tab Teori, lalu coba kembali.'}</p><button class="btn pri" id="qRe">↺ Ulangi kuis</button></div>`;return;
+  }
+  const q=QZ[qi];qa=false;
+  el.innerHTML=`<div class="qhead">Soal ${qi+1} dari ${QZ.length} · Skor ${qs}</div><h3>${q.q}</h3><div class="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}">${'ABCD'[i]}. ${o}</button>`).join('')}</div><div id="qfb"></div>`;
+}
+
+/* ================== TAB & EVENT ================== */
+function setTab(n){
+  if(n!==curTab&&running){running=false;updPlay()}
+  curTab=n;
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===n));
+  document.querySelectorAll('.pane').forEach(x=>x.classList.toggle('on',x.id==='pane-'+n));
+  if(n==='sim'){updUI(true);chartDirty=true;drawChart()}
+  if(n==='teori')renderTopic(curTopic);
+  if(n==='lkpd')renderRows();
+}
+function fit(){const f=$('fit');const k=Math.min(f.clientWidth/1280,f.clientHeight/720);$('stage').style.transform=`translate(-50%,-50%) scale(${k})`}
+function init(){
+  buildControls();
+  $('presets').innerHTML=PRESETS.map(x=>`<button data-pre="${x.k}">${x.n}</button>`).join('');
+  renderMenu();renderTopic('intro');renderProc(0);renderAna();renderQuiz();
+  try{const d=JSON.parse(localStorage.getItem('lm_dev')||'null');if(d){$('dvName').value=d.n||'';$('dvOrg').value=d.o||'';$('dvYear').value=d.y||''}}catch(e){}
+  loadLK();renderRows();updPlay();updUI(true);fit();
+  document.addEventListener('click',e=>{if(e.target.closest('button'))ac()},{once:true});
+
+  $('tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;sfx('tab');setTab(b.dataset.tab)});
+  $('btnSound').onclick=()=>{soundOn=!soundOn;$('btnSound').textContent=soundOn?'🔊 Suara':'🔇 Senyap';if(soundOn)sfx('click')};
+  $('btnFull').onclick=()=>{sfx('click');try{if(document.fullscreenElement)document.exitFullscreen();else(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen).call(document.documentElement)}catch(e){toast('Layar penuh tidak didukung di sini')}};
+  document.addEventListener('fullscreenchange',()=>{$('btnFull').textContent=document.fullscreenElement?'⛶ Keluar':'⛶ Layar Penuh';fit()});
+  window.addEventListener('resize',fit);
+
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-preset]');if(b){setTab('sim');applyPreset(b.dataset.preset)}});
+  $('presets').addEventListener('click',e=>{const b=e.target.closest('button');if(b)applyPreset(b.dataset.pre)});
+  $('tabExt').onclick=()=>{sfx('click');$('ctlExt').classList.remove('hid');$('ctlInt').classList.add('hid');$('tabExt').classList.add('on');$('tabInt').classList.remove('on')};
+  $('tabInt').onclick=()=>{sfx('click');$('ctlInt').classList.remove('hid');$('ctlExt').classList.add('hid');$('tabInt').classList.add('on');$('tabExt').classList.remove('on')};
+  $('gene').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;p.gene=+b.dataset.g;syncUI();sfx('hormone',30+p.gene*30);chartDirty=true});
+  $('hintTog').onchange=e=>{document.body.classList.toggle('hint',e.target.checked);sfx('click')};
+  $('bPlay').onclick=togglePlay;
+  $('bSpeed').onclick=()=>{speed=speed===1?2:speed===2?4:1;$('bSpeed').textContent='⏩ ×'+speed;sfx('click')};
+  $('bReplant').onclick=()=>{restart();sfx('reset');toast('Tanam ulang dengan pengaturan yang sama')};
+  $('bSave').onclick=saveRow;
+  $('bLk').onclick=()=>{sfx('tab');setTab('lkpd')};
+  $('bReset').onclick=resetAll;
+  $('mH').onclick=()=>{metric='H';$('mH').classList.add('on');$('mB').classList.remove('on');chartDirty=true;sfx('click');drawChart()};
+  $('mB').onclick=()=>{metric='B';$('mB').classList.add('on');$('mH').classList.remove('on');chartDirty=true;sfx('click');drawChart()};
+
+  $('pSteps').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;sfx('click');renderProc(+b.dataset.i)});
+  $('pMain').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;sfx('click');
+    if(b.id==='pPrev'&&pStep>0)renderProc(pStep-1);else if(b.id==='pNext')renderProc(pStep+1);else if(b.id==='pGo')setTab('sim')});
+
+  document.querySelectorAll('[data-lk]').forEach(b=>b.onclick=()=>{sfx('click');document.querySelectorAll('[data-lk]').forEach(x=>x.classList.toggle('on',x===b));['data','ana','quiz'].forEach(k=>$('lk-'+k).classList.toggle('on',k===b.dataset.lk))});
+  $('lkName').oninput=saveLK;$('lkClass').oninput=saveLK;
+  $('lkGoSim').onclick=()=>{sfx('tab');setTab('sim')};
+  $('lkRowsClear').onclick=()=>{rows=[];renderRows();saveLK();sfx('reset')};
+  $('lkRows').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(!b)return;rows.splice(+b.dataset.del,1);renderRows();saveLK();sfx('click')});
+  $('lk-ana').addEventListener('click',e=>{const b=e.target.closest('[data-hint]');if(!b)return;sfx('click');$('hint'+b.dataset.hint).classList.toggle('on')});
+  let clr=0;
+  $('lkClear').onclick=()=>{
+    if(!clr){clr=setTimeout(()=>{clr=0;$('lkClear').textContent='Hapus isian LKPD'},3000);$('lkClear').textContent='Klik lagi untuk menghapus';sfx('warn');return}
+    clearTimeout(clr);clr=0;$('lkClear').textContent='Hapus isian LKPD';
+    rows=[];QS.forEach((_,i)=>$('ans'+i).value='');$('lkName').value='';$('lkClass').value='';renderRows();saveLK();qi=0;qs=0;renderQuiz();sfx('reset');toast('Isian LKPD dihapus');
+  };
+  $('lk-quiz').addEventListener('click',e=>{
+    const o=e.target.closest('.opt'),n=e.target.closest('#qNext'),r=e.target.closest('#qRe');
+    if(r){qi=0;qs=0;renderQuiz();sfx('click');return}
+    if(n){qi++;renderQuiz();sfx('click');return}
+    if(o&&!qa){
+      qa=true;const q=QZ[qi],i=+o.dataset.i,okk=i===q.a;
+      document.querySelectorAll('#lk-quiz .opt').forEach((b,k)=>{if(k===q.a)b.classList.add('ok');else if(k===i)b.classList.add('no')});
+      if(okk){qs++;sfx('ok')}else sfx('bad');
+      $('qfb').innerHTML=`<div class="fb"><span><b>${okk?'Benar!':'Belum tepat.'}</b> ${q.e}</span><button class="btn pri" id="qNext">${qi<QZ.length-1?'Lanjut →':'Lihat skor'}</button></div>`;
+    }
+  });
+  const sd=()=>{try{localStorage.setItem('lm_dev',JSON.stringify({n:$('dvName').value,o:$('dvOrg').value,y:$('dvYear').value}))}catch(e){}};
+  ['dvName','dvOrg','dvYear'].forEach(i=>$(i).oninput=sd);
+  document.addEventListener('keydown',e=>{if(e.code==='Space'&&curTab==='sim'&&!/INPUT|TEXTAREA|BUTTON/.test(document.activeElement.tagName)){e.preventDefault();togglePlay()}});
+  requestAnimationFrame(frame);
+}
+init();
+</script>
+</body>
+</html>
